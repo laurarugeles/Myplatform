@@ -34,6 +34,7 @@ public class Communicator {
     public static boolean subscribeSubjectorEvent = true;
     public static boolean suggestionInteresorSubject = true;
     public static boolean codeStudentFromSubjectOrInteres = true;
+    public static boolean fromDetailProfileorDetailProfileUnsubscribe = true;
     public static String profileNameSubjectEventIdentifier = "";
     public static String profileSelectionIdentifier = "";
     public static String profileSelectionIdentifierStudentInscritos = "";

@@ -69,6 +69,7 @@ public class DetailEventProfile extends Fragment {
         buttonEstudInscritos.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Communicator.fromDetailProfileorDetailProfileUnsubscribe = true;
                 ((MainActivity)getActivity()).onDetailStudentInformation(Communicator.EventsDetailidgrupo);
                 if (Communicator.profileSelectionIdentifier == "POSEC"){
                     Communicator.profileSelectionIdentifierStudentInscritos = "POSEC";

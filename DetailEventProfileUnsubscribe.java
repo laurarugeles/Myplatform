@@ -63,6 +63,7 @@ public class DetailEventProfileUnsubscribe extends Fragment {
         buttonEstudInscritos.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Communicator.fromDetailProfileorDetailProfileUnsubscribe = false;
                 if(Communicator.profileSelectionIdentifierUnsubscribe == "PSES"){
                     Communicator.profileSelectionIdentifierStudentInscritos="PSES";
                     ((MainActivity)getActivity()).onDetailStudentInformation(Communicator.EventsDetailidgrupo);

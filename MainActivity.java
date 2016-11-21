@@ -624,6 +624,47 @@ public class MainActivity extends AppCompatActivity
         onSuggestionBegin();
     }
 
+    public void onFinishShowSendRatingStudent(String result)
+    {
+
+        if(result.contains("Hubo un error")){
+            AlertDialog.Builder alertDialog = new AlertDialog.Builder(this,AlertDialog.THEME_DEVICE_DEFAULT_LIGHT);
+            alertDialog.setIcon(R.drawable.logo_solo);
+            alertDialog.setTitle("Alerta").setCancelable(false);
+            alertDialog.setPositiveButton("Continuar", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                }
+            });
+            alertDialog.setMessage("Ocurrió un error en el envio de calificación").create();
+            alertDialog.show();
+        }else{
+            AlertDialog.Builder alertDialog = new AlertDialog.Builder(this,AlertDialog.THEME_DEVICE_DEFAULT_LIGHT);
+            alertDialog.setIcon(R.drawable.logo_solo);
+            alertDialog.setTitle("Alerta").setCancelable(false);
+            alertDialog.setPositiveButton("Continuar", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                }
+            });
+            alertDialog.setMessage("Calificación enviada").create();
+            alertDialog.show();
+            if(Communicator.fromDetailProfileorDetailProfileUnsubscribe == true){
+               onDetailStudentInformation(Communicator.EventsDetailidgrupo);
+            }else{
+                if(Communicator.profileSelectionIdentifierUnsubscribe == "PSES"){
+                    Communicator.profileSelectionIdentifierStudentInscritos="PSES";
+                    onDetailStudentInformation(Communicator.EventsDetailidgrupo);
+                }else{
+                    Communicator.profileSelectionIdentifierStudentInscritos="PIES";
+                    onDetailStudentInformationInteres(Communicator.EventsDetailidgrupo);
+                }
+            }
+        }
+    }
+
     public void onFinishProfileOwnSubjectEventsCreate(String result)
     {
         if(result.equals("Hubo un Error")){
@@ -1123,6 +1164,11 @@ public class MainActivity extends AppCompatActivity
         Communicator.CodeStudentInscritosInteres.clear();
         ShowDetailStudentInformationInteres showDetailStudentInformationInteres = new ShowDetailStudentInformationInteres(this);
         showDetailStudentInformationInteres.execute(a);
+    }
+
+    public void onRatingStudent(String codigo, String rating){
+        ShowSendRatingStudent showSendRatingStudent = new ShowSendRatingStudent(this);
+        showSendRatingStudent.execute(codigo,rating);
     }
 
     //inicializa asyntask para consultar las materias
@@ -3165,6 +3211,88 @@ public class MainActivity extends AppCompatActivity
             super.onPostExecute(s);
             pd.hide();
             onFinishShowDesinscribirseProfileEventsSubscribe(s);
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            pd = new ProgressDialog(context);
+            pd.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            pd.setTitle("Conexión");
+            pd.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            pd.setIndeterminate(true);
+            pd.getProgress();
+            pd.setMessage("Cargando...");
+            pd.setCancelable(false);
+            pd.getWindow().setGravity(Gravity.CENTER);
+            pd.show();
+        }
+    }
+
+    //realiza el envio del rating del estudiante
+    private class ShowSendRatingStudent extends AsyncTask<String,Void,String>{
+
+        ProgressDialog pd;
+        Context context;
+
+        ShowSendRatingStudent(Context ctx){context = ctx;}
+
+        @Override
+        protected String doInBackground(String... params) {
+            String codigo = params[0];
+            String rating= params[1];
+            String urlstring = "https://php-mrls94.c9users.io/RateStudent.php";
+            try {
+                URL url = new URL(urlstring);
+                HttpsURLConnection httpsURLConnection = (HttpsURLConnection) url.openConnection();
+                //httpsURLConnection.connect();
+                httpsURLConnection.setRequestMethod("POST");
+                httpsURLConnection.setDoInput(true);
+                httpsURLConnection.setDoOutput(true);
+
+                OutputStream outputStream = httpsURLConnection.getOutputStream();
+                BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(outputStream, "UTF-8"));
+
+                String post =URLEncoder.encode("codigo","UTF-8")+"="+URLEncoder.encode(codigo,"UTF-8")+
+                        "&" +URLEncoder.encode("rating","UTF-8")+"="+URLEncoder.encode(rating,"UTF-8");
+
+                bufferedWriter.write(post);
+                bufferedWriter.flush();
+
+                bufferedWriter.close();
+                outputStream.close();
+
+                InputStream inputStream = httpsURLConnection.getInputStream();
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream,"UTF-8"));
+
+                String result = "";
+                String line = "";
+
+                while((line = bufferedReader.readLine())!=null)
+                {
+                    result+=line;
+                }
+
+
+                bufferedReader.close();
+                inputStream.close();
+
+                httpsURLConnection.disconnect();
+
+                return result;
+
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+            pd.hide();
+            onFinishShowSendRatingStudent(s);
         }
 
         @Override
